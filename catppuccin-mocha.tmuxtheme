@@ -20,6 +20,22 @@ thm_black4="#585b70"
 
 # ----------------------------=== Theme ===--------------------------
 
+# RAM usage
+memory_usage() {
+
+    if [ "$(which bc)" ]; then
+
+        # Display used, total, and percentage of memory using the free command.
+        read used total <<< $(free -g | awk '/Mem/{printf $2" "$3}')
+        # Calculate the percentage of memory used with bc.
+        percent=$(bc -l <<< "100 * $total / $used")
+        # Feed the variables into awk and print the values with formating.
+        # awk -v u=$used -v t=$total -v p=$percent 'BEGIN {printf "%sG/%sG %.1f% ", t, u, p}'
+        awk -v u=$used -v t=$total 'BEGIN {printf "%sG/%sG ", t, u}'
+
+    fi
+}
+
 # utils
 set() {
 	local option=$1
@@ -56,7 +72,10 @@ setw window-status-style "fg=${thm_fg},bg=${thm_bg},none"
 # --------=== Statusline
 
 set status-left ""
-set status-right "#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics] #[fg=$thm_fg,bg=$thm_gray] #W #{?client_prefix,#[fg=$thm_red],#[fg=$thm_green]}#[bg=$thm_gray]#{?client_prefix,#[bg=$thm_red],#[bg=$thm_green]}#[fg=$thm_bg] #[fg=$thm_fg,bg=$thm_gray] #S "
+set status-right\
+	"#[fg=$thm_blue,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_blue,nobold,nounderscore,noitalics] #[fg=$thm_fg,bg=$thm_gray] $(memory_usage)\
+	#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics] #[fg=$thm_fg,bg=$thm_gray] #W \
+	#{?client_prefix,#[fg=$thm_red],#[fg=$thm_green]}#[bg=$thm_gray]#{?client_prefix,#[bg=$thm_red],#[bg=$thm_green]}#[fg=$thm_bg] #[fg=$thm_fg,bg=$thm_gray] #S "
 
 # current_dir
 setw window-status-format "#[fg=$thm_bg,bg=$thm_blue] #I #[fg=$thm_fg,bg=$thm_gray] #{b:pane_current_path} "
